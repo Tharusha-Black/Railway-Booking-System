@@ -1,41 +1,75 @@
-from django.shortcuts import render
-from train_schedule_service.models import TrainSchedule
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import user_passes_test
+from .forms import TrainForm, TrainScheduleForm
+from django.contrib import messages
+from .models import Train, TrainSchedule
+from django.shortcuts import get_object_or_404
 
-def search_trains(request):
-    # Get unique destinations from TrainSchedule
-    destinations = TrainSchedule.objects.values_list('destination', flat=True).distinct()
-    start_locations = TrainSchedule.objects.values_list('start_location', flat=True).distinct()
-
-    # Get unique dates from TrainSchedule
-    dates = TrainSchedule.objects.values_list('schedule_date', flat=True).distinct()
-
-    # Retrieve all schedules
+def dashboard(request):
+    trains = Train.objects.all()
     schedules = TrainSchedule.objects.all()
+    return render(request, 'train_schedule_service/dashboard.html', {'trains': trains, 'schedules': schedules})
 
-    # Get sorting criteria from request parameters
-    sort_date = request.GET.get('sort_date')
-    sort_destination = request.GET.get('sort_destination')
-    sort_start_location = request.GET.get('sort_start_location')
+def edit_train(request, train_id):
+    train = get_object_or_404(Train, pk=train_id)
+    if request.method == 'POST':
+        form = TrainForm(request.POST, instance=train)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')
+    else:
+        form = TrainForm(instance=train)
+    return render(request, 'train_schedule_service/train_add_form.html', {'form': form})
 
-    # Apply filtering based on selected options
-    # Apply filtering based on selected options
-    filters = {}
-    if sort_date:
-        filters['schedule_date'] = sort_date
-    if sort_destination:
-        filters['destination'] = sort_destination
-    if sort_start_location:
-        filters['start_location'] = sort_start_location
-    # Filter schedules based on selected criteria
-    schedules = schedules.filter(**filters)
+def delete_train(request, train_id):
+    train = get_object_or_404(Train, pk=train_id)
+    if request.method == 'POST':
+        train.delete()
+        return redirect('dashboard')
+    return render(request, 'train_schedule_service/train_confirm_delete.html', {'train': train})
 
-    # Render the template with filtered and sorted schedules and other context data
-    return render(request, 'train_search_service/schedule_table.html', {
-        'schedules': schedules,
-        'dates': dates,
-        'destinations': destinations,
-        'start_locations': start_locations,
-        'sort_date': sort_date,
-        'sort_destination': sort_destination,
-        'sort_start_location': sort_start_location,
-    })
+@user_passes_test(lambda u: u.is_superuser)
+def add_train(request):
+    if request.method == 'POST':
+        form = TrainForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Train successfully added!')
+            return redirect('dashboard')  # Redirect to the dashboard with a success message
+    else:
+        form = TrainForm()
+    return render(request, 'train_schedule_service/train_add_form.html', {'form': form})
+
+@user_passes_test(lambda u: u.is_superuser)
+def schedule_train(request):
+    if request.method == 'POST':
+        form = TrainScheduleForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('dashboard')  # Redirect to a success page
+    else:
+        form = TrainScheduleForm()
+    return render(request, 'train_schedule_service/schedule_form.html', {'form': form})
+
+@user_passes_test(lambda u: u.is_superuser)
+def edit_schedule(request, schedule_id):
+    schedule = get_object_or_404(TrainSchedule, pk=schedule_id)
+    if request.method == 'POST':
+        form = TrainScheduleForm(request.POST, instance=schedule)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Schedule successfully updated!')
+            return redirect('dashboard')
+    else:
+        form = TrainScheduleForm(instance=schedule)
+    return render(request, 'train_schedule_service/schedule_form.html', {'form': form})
+
+# View to delete a train schedule
+@user_passes_test(lambda u: u.is_superuser)
+def delete_schedule(request, schedule_id):
+    schedule = get_object_or_404(TrainSchedule, pk=schedule_id)
+    if request.method == 'POST':
+        schedule.delete()
+        messages.success(request, 'Schedule successfully deleted!')
+        return redirect('dashboard')
+    return render(request, 'train_schedule_service/schedule_confirm_delete.html', {'schedule': schedule})
