@@ -27,15 +27,16 @@ def user_login(request):
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             user = form.get_user()
+            login(request, user)  # Log in the user
             if user.is_superuser:
                 return redirect('dashboard')  # Redirect superusers to dashboard
             else:
-                return redirect('dashboard')  # Redirect regular users to home
-        # If the form is not valid, render the login form again with the errors
+                return redirect('search_trains')  # Redirect regular users to home
     else:
-        form = LoginForm()
+        form = AuthenticationForm()
     return render(request, 'user_management/login.html', {'form': form})
+
 # logout page
 def user_logout(request):
     logout(request)
-    return redirect('login')
+    return redirect('home')
