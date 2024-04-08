@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket Booking</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .ticket {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .ticket-title {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .ticket-info {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+
+        .ticket-info span {
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body><br>
+    <div class="container">
+        <div class="ticket">
+            <div class="ticket-header">
+                <div class="ticket-title">Ticket Details</div>
+                <div class="ticket-info">Date: <span>{{ schedule_data.schedule_date }}</span></div>
+            </div>
+            <div class="ticket-info">Selected Seats: <span>{{ seat_numbers }}</span></div>
+            <!-- Add ticket information -->
+            <div class="ticket-info">Name: <span>{{ user_data.first_name}} {{ user_data.last_name}}</span></div>
+            <div class="ticket-info">NIC: <span>{{ user_data.NIC }}</span></div>
+            <div class="ticket-info">Phone Number: <span>{{ user_data.mobile_number}}</span></div>
+            <div class="ticket-info">Start Location: <span>{{ schedule_data.start_location }}</span></div>
+            <div class="ticket-info">Destination: <span>{{ schedule_data.destination }}</span></div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.4.0/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dom-to-image/2.6.0/dom-to-image.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+
+</html>

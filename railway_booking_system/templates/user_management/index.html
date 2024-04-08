@@ -1,0 +1,20 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="text-center">
+        <h1 class="display-3 font-weight-bold text-shadow">Welcome To Sri Lanka Railway Ticket Booking System</h1>
+    </div><br>
+    <div class="text-center mt-4">
+        <a href="{% url 'login' %}" class="btn btn-primary btn-lg mr-3">Login</a>&nbsp;&nbsp;
+        <a href="{% url 'signup' %}" class="btn btn-success btn-lg">Signup</a>
+    </div>
+</div><br><br><Br>
+<div class="row mt-4">
+    <div class="col-md-12 text-center">
+        <p class="lead">Explore available train schedules and book tickets through our API.</p>
+        <a href="{% url 'train-list' %}" class=" btn-primary mr-3">Get Trains api</a>&nbsp;&nbsp;
+        <a href="{% url 'schedule-list' %}" class=" btn-primary ">Get Train Schedules api</a>
+    </div>
+</div>
+{% endblock %}

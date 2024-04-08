@@ -1,0 +1,170 @@
+{% extends 'main/base.html' %}
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Booking</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .card {
+            width: 1000px;
+
+        }
+
+        .block {
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            margin-bottom: 20px;
+            width: 200px;
+            /* Adjust the width as needed */
+        }
+
+        .block-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .box {
+            width: 30px;
+            height: 30px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin: 5px;
+            display: inline-block;
+            text-align: center;
+            line-height: 30px;
+            cursor: pointer;
+            transition: background-color 0.3s ease-in-out;
+        }
+
+        .box.clicked {
+            background-color: lightgreen;
+        }
+
+        .box.booked {
+            background-color: red;
+            cursor: not-allowed;
+        }
+
+        .box:hover {
+            background-color: lightblue;
+        }
+
+        .btnSeats {
+            display: flex;
+            justify-content: flex-start;
+            /* Align button to the left */
+            margin: 0;
+            /* Remove margin */
+            border: 1px solid #000;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            width: fit-content;
+
+        }
+
+        #bookNowButton {
+            display: block;
+            margin: 0 auto;
+            border: 1px solid #000;
+            border-radius: 5px;
+            padding: 10px 20px;
+            cursor: pointer;
+            width: fit-content;
+            /* Ensure button width fits its content */
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <a href="{% url 'search_trains' %}" class="btn btn-secondary mt-3 btnSeats">Back to Schedule</a>
+    </div>
+    <div class="container">
+
+        {% for block_name in 'ABCDE' %}
+        <div class="block">
+            <div class="block-name">Block {{ block_name }}</div>
+            {% for seat_number in seat_numbers %}
+            {% with id=block_name|add:seat_number %}
+            <div class="box {% if id in selected_seats %}booked{% endif %}" id="{{ id }}">
+                {{ block_name }}{{ seat_number }}
+            </div>
+            {% endwith %}
+            {% endfor %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        <button id="bookNowButton" class="btn btn-primary mt-3">Book Now</button>
+    </div>
+
+    <!-- Bootstrap JS (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        var clickedBoxes = [];
+        var maxSeats = "{{ unique_seats }}"; // Ensure unique_seats is properly formatted
+        console.log(maxSeats);
+        var userId = '{{ user_id }}';
+        var scheduleId = '{{ schedule_id }}';
+        console.log(userId);
+
+        maxSeats = 5 - parseInt(maxSeats); // Convert to integer if needed
+        $('.box').click(function () {
+            var boxId = $(this).attr('id');
+            if (!$(this).hasClass('clicked') && clickedBoxes.length < maxSeats) {
+                $(this).addClass('clicked');
+                clickedBoxes.push(boxId);
+            } else if ($(this).hasClass('clicked')) {
+                $(this).removeClass('clicked');
+                var index = clickedBoxes.indexOf(boxId);
+                if (index > -1) {
+                    clickedBoxes.splice(index, 1);
+                }
+            }
+        });
+    </script>
+    <script>
+        $(document).ready(function () {
+            $('#bookNowButton').click(function () {
+                // Check if any boxes are clicked
+                if (clickedBoxes.length === 0) {
+                    alert('Please select at least one seat.');
+                    return; // Prevent submission if no boxes are clicked
+                }
+
+                var selectedSeats = clickedBoxes.join(',');
+                var userId = '{{ user_id }}';
+                var scheduleId = '{{ schedule_id }}';
+                console.log(userId);
+                var url = "/seat_booking_service/reserved_seats/?user_id=" + userId + "&schedule_id=" + scheduleId + "&selected_seats=" + selectedSeats;
+                window.location.href = url;
+
+                setTimeout(function () {
+                    var url1 = "/train_search_service/search_trains";
+                    window.location.href = url1;
+                }, 1000); // Adjust the delay as needed
+            });
+        });
+    </script>
+
+
+</body>
+
+</html>
+{% endblock %}

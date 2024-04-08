@@ -1,0 +1,102 @@
+{% extends 'main/base.html' %}
+{% block content %}
+
+<div>
+    <div class="container card">
+        <h1 class="mt-5">Schedules</h1>
+        <div class="row">
+            <div class="mb-3 col-3">
+                <select id="sort_date" class="form-select" name="sort_date">
+                    <option value="">Select Date</option>
+                    {% for date in dates %}
+                    <option value="{{ date }}">{{ date }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Sort by Destination -->
+            
+            <div class="mb-3 col-3">
+                <select id="sort_start_location" class="form-select" name="sort_start_location">
+                    <option value="">Select Start Location</option>
+                    {% for location in start_locations %}
+                    <option value="{{ location }}">{{ location }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3 col-3">
+                <select id="sort_destination" class="form-select" name="sort_destination">
+                    <option value="">Select destination</option>
+                    {% for destination in destinations %}
+                    <option value="{{ destination }}">{{ destination }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3 col-3">
+                <button class="btn btn-outline-secondary" type="button" id="searchButton">
+                    <i class="fas fa-search"></i>
+                </button>
+            </div>
+        </div>
+        <table class="table mt-4">
+            <thead>
+                <tr>
+                    <th>Train</th>
+                    <th>Schedule Date</th>
+                    <th>Departure Time</th>
+                    <th>Start Location</th>
+                    <th>Destination</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for schedule in schedules %}
+                <tr>
+                    <td>{{ schedule.train }}</td>
+                    <td>{{ schedule.schedule_date }}</td>
+                    <td>{{ schedule.departure_time }}</td>
+                    <td>{{ schedule.start_location }}</td>
+                    <td>{{ schedule.destination }}</td>
+                    <td>
+                        <!-- Add CRUD operation links/buttons for schedules here -->
+                        <a href="{% url 'seat_book' schedule.pk %}" class="btn btn-primary btn-sm">Book</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+    // Add click event listener to the search button
+    document.getElementById("searchButton").addEventListener("click", function () {
+        // Get selected values for sorting
+        var selectedDate = document.getElementById("sort_date").value;
+        var selectedDestination = document.getElementById("sort_destination").value;
+        var selectedStart_location = document.getElementById("sort_start_location").value;
+
+        // Adjust the selected date if it exists
+        var formattedDate = "";
+        if (selectedDate) {
+            var adjustedDate = new Date(selectedDate);
+            adjustedDate.setDate(adjustedDate.getDate() + 1);
+            formattedDate = adjustedDate.toISOString().split('T')[0];
+        }
+
+        // Construct the search URL based on selected options
+        var searchUrl = "/train_search_service/search_trains?";
+        if (selectedDate) {
+            searchUrl += "sort_date=" + formattedDate + "&";
+        }
+        if (selectedDestination) {
+            searchUrl += "sort_destination=" + selectedDestination + "&";
+        }
+        if (selectedStart_location) {
+            searchUrl += "sort_start_location=" + selectedStart_location;
+        }
+
+
+        // Redirect to the search URL
+        window.location.href = searchUrl;
+    });</script>
+{% endblock %}
