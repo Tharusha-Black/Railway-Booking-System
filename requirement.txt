@@ -1,0 +1,3 @@
+django
+djangorestframework
+xhtml2pdf
